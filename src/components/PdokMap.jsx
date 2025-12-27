@@ -1,0 +1,151 @@
+import React, { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import './PdokMap.css';
+
+// Fix for default marker icons in Leaflet with Vite
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+const DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+const PdokMap = ({ address, coordinates }) => {
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markerRef = useRef(null);
+
+  useEffect(() => {
+    if (!coordinates) return;
+
+    const { lat, lon } = coordinates;
+
+    // Initialize map if it doesn't exist
+    if (!mapInstanceRef.current && mapRef.current) {
+      // Create map centered on coordinates with maximum zoom allowed
+      const map = L.map(mapRef.current, {
+        maxZoom: 25, // Allow maximum zoom
+        zoomControl: true
+      }).setView([lat, lon], 15);
+
+      // Add PDOK base layer (BGT - Basisregistratie Grootschalige Topografie)
+      // PDOK provides WMS services, using BGT as base layer
+      const pdokBgtLayer = L.tileLayer.wms('https://service.pdok.nl/brt/bgt/wms/v1_1?', {
+        layers: 'bgt',
+        format: 'image/png',
+        transparent: true,
+        maxZoom: 25, // Allow maximum zoom
+        attribution: '© PDOK | <a href="https://www.pdok.nl" target="_blank">PDOK.nl</a>'
+      });
+
+      // Add OpenStreetMap as base layer (fallback and for better visibility)
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors | © PDOK',
+        maxZoom: 25 // Increased from 19 to allow more zoom
+      });
+
+      // Add PDOK aerial imagery layer (satellite view - default)
+      // Using highest quality settings: PNG format for lossless quality
+      const pdokAerialLayer = L.tileLayer.wms('https://service.pdok.nl/hwh/luchtfotorgb/wms/v1_0?', {
+        layers: 'Actueel_ortho25',
+        format: 'image/png', // PNG for best quality (lossless, no compression artifacts)
+        transparent: false,
+        maxZoom: 25, // Allow maximum zoom
+        srs: 'EPSG:3857', // Web Mercator projection
+        version: '1.1.1', // WMS version
+        attribution: '© PDOK | <a href="https://www.pdok.nl" target="_blank">PDOK.nl</a>'
+      });
+
+      // Add high-resolution layer option (10cm resolution - best quality)
+      // Available in some areas of the Netherlands
+      const pdokAerialHRLayer = L.tileLayer.wms('https://service.pdok.nl/hwh/luchtfotorgb/wms/v1_0?', {
+        layers: 'Actueel_orthoHR', // High resolution (10cm) - highest quality available
+        format: 'image/png', // PNG for best quality
+        transparent: false,
+        maxZoom: 25,
+        srs: 'EPSG:3857',
+        version: '1.1.1',
+        attribution: '© PDOK | <a href="https://www.pdok.nl" target="_blank">PDOK.nl</a>'
+      });
+
+      // Add highest quality satellite view as default base layer
+      // Use high-res if available, otherwise standard resolution
+      pdokAerialHRLayer.addTo(map);
+      
+      // Add base layers (satellite is default, but user can switch)
+      const baseMaps = {
+        'Satellite HR (10cm - Best Quality)': pdokAerialHRLayer,
+        'Satellite (25cm)': pdokAerialLayer,
+        'OpenStreetMap': osmLayer
+      };
+
+      const overlayMaps = {
+        'PDOK BGT': pdokBgtLayer
+      };
+
+      // Add layer control
+      L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+      // Add marker for the location
+      const marker = L.marker([lat, lon]).addTo(map);
+      if (address) {
+        marker.bindPopup(`<b>${address}</b><br>Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`).openPopup();
+      } else {
+        marker.bindPopup(`Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`);
+      }
+      markerRef.current = marker;
+
+      mapInstanceRef.current = map;
+    } else if (mapInstanceRef.current) {
+      // Update map if it already exists
+      mapInstanceRef.current.setView([lat, lon], 15);
+      
+      // Remove old marker
+      if (markerRef.current) {
+        mapInstanceRef.current.removeLayer(markerRef.current);
+      }
+      
+      // Add new marker
+      const marker = L.marker([lat, lon]).addTo(mapInstanceRef.current);
+      if (address) {
+        marker.bindPopup(`<b>${address}</b><br>Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`).openPopup();
+      } else {
+        marker.bindPopup(`Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`);
+      }
+      markerRef.current = marker;
+    }
+
+    // Cleanup function
+    return () => {
+      // Don't remove map on cleanup, only remove markers
+      if (markerRef.current && mapInstanceRef.current) {
+        mapInstanceRef.current.removeLayer(markerRef.current);
+        markerRef.current = null;
+      }
+    };
+  }, [address, coordinates]);
+
+  return (
+    <div className="map-container">
+      <div className="map-header">
+        <h3>Location</h3>
+        {address && <p className="map-address">{address}</p>}
+        {!address && coordinates && (
+          <p className="map-address">Default location</p>
+        )}
+      </div>
+      <div className="map-wrapper" ref={mapRef}></div>
+    </div>
+  );
+};
+
+export default PdokMap;
+
