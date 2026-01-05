@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './SearchBar.css';
 
 const SearchBar = ({ onSearch, loading }) => {
   const [address, setAddress] = useState('');
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    // Auto-focus the search input when component mounts
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,6 +27,7 @@ const SearchBar = ({ onSearch, loading }) => {
           <path d="M19 19L14.65 14.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <input
+          ref={inputRef}
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}

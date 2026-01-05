@@ -15,6 +15,25 @@
   margin: 0 auto;
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.spenat-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.spenat-logo:hover {
+  opacity: 0.7;
+}
+
 .app-title {
   font-size: 48px;
   font-weight: 600;
@@ -68,6 +87,35 @@
   display: flex;
   flex-direction: column;
   min-height: 600px;
+}
+
+.app-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: #0a0a0a;
+  padding: 24px;
+  margin-top: 48px;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.disclaimer {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.footer-link:hover {
+  color: #ffffff;
 }
 
 @media (min-width: 1024px) {

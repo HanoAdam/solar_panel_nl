@@ -137,7 +137,7 @@ function App() {
           // Keep default coordinates or previous coordinates
         }
       } else {
-        setError('Dit adres is niet beschikbaar in deze dataset.');
+        setError('The address is not available in this dataset.');
         console.log('Searched for:', normalizedSearchAddress);
         console.log('Total addresses loaded:', Object.keys(spreadsheetData).length);
         console.log('Sample addresses:', Object.keys(spreadsheetData).slice(0, 5));
@@ -155,7 +155,12 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-content">
-          <h1 className="app-title">Solar Info - Spenat Labs</h1>
+          <div className="header-top">
+            <h1 className="app-title">Solar Panel Finder</h1>
+            <a href="https://spenatlabs.com" target="_blank" rel="noopener noreferrer" className="spenat-logo">
+              Spenat Labs
+            </a>
+          </div>
           <p className="app-subtitle">Search for addresses and view solar panel data</p>
         </div>
       </header>
@@ -179,6 +184,15 @@ function App() {
           </div>
         </div>
       </div>
+      <footer className="app-footer">
+        <div className="footer-content">
+          <p className="disclaimer">
+            This application provides solar panel information based on available datasets. 
+            For API access and inquiries, please contact{' '}
+            <a href="mailto:andrej@spenatlabs.com" className="footer-link">andrej@spenatlabs.com</a>.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
