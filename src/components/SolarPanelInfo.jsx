@@ -57,18 +57,14 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
   useEffect(() => {
     // Only recalculate if data exists and we have panel data
     // This effect runs when user edits fields (state changes), not when data initially loads
+    // When user edits fields, always recalculate (ignore spreadsheet values)
     if (data && data.panels !== undefined && data.panels !== null) {
-      // Use kWp from spreadsheet if available, otherwise calculate
-      const kwp = (data.kwp !== undefined && data.kwp !== null && data.kwp > 0)
-        ? data.kwp
-        : (data.panels * avgPanelOutput) / 1000;
+      // Always calculate kWp when user edits fields: (Number of panels * Avg solar panel output) / 1000
+      const kwp = (data.panels * avgPanelOutput) / 1000;
       setCalculatedKwp(kwp);
 
-      // Use Annual output from spreadsheet if available, otherwise calculate
-      // Note: When user edits fields, we still prefer spreadsheet value unless they're actively recalculating
-      const annualOutput = (data.annualOutput !== undefined && data.annualOutput !== null && data.annualOutput > 0)
-        ? data.annualOutput
-        : kwp * kwhPerKwpPerYear * (availabilityFactor / 100);
+      // Always calculate Annual output when user edits fields: kWp * kWh/kWp/year_NL * (Availability factor / 100)
+      const annualOutput = kwp * kwhPerKwpPerYear * (availabilityFactor / 100);
       setCalculatedAnnualOutput(annualOutput);
 
       // Notify parent component of changes
