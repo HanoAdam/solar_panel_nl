@@ -185,20 +185,22 @@ function App() {
       }
 
       if (data) {
-        setSolarPanelData(data);
-        setError(null); // Clear any previous errors
-        
         // Always use the original address from spreadsheet for display and geocoding
         // This ensures correct spelling and full address (with city, zip, country) is shown
         const addressToGeocode = data.originalAddress || matchedKey || searchAddress;
         
-        // Only geocode and update coordinates if data is found
-        // This prevents the map from zooming when address is not in dataset
+        // Geocode first, then set both data and coordinates together to prevent double zoom
         try {
           const coords = await geocodeAddress(addressToGeocode);
+          // Set coordinates and data together to prevent intermediate map updates
           setCoordinates(coords);
+          setSolarPanelData(data);
+          setError(null); // Clear any previous errors
         } catch (geocodeErr) {
           console.warn('Geocoding failed, but continuing with solar panel data:', geocodeErr);
+          // Set data even if geocoding fails, but don't update coordinates
+          setSolarPanelData(data);
+          setError(null);
           // Keep default coordinates or previous coordinates
         }
       } else {

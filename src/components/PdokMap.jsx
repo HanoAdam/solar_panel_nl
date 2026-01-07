@@ -22,11 +22,21 @@ const PdokMap = ({ address, coordinates }) => {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
+  const previousCoordinatesRef = useRef(null);
 
   useEffect(() => {
     if (!coordinates) return;
 
     const { lat, lon } = coordinates;
+    
+    // Skip if coordinates haven't changed (prevent unnecessary updates)
+    if (previousCoordinatesRef.current && 
+        previousCoordinatesRef.current.lat === lat && 
+        previousCoordinatesRef.current.lon === lon) {
+      return;
+    }
+    
+    previousCoordinatesRef.current = { lat, lon };
     
     // Handle window resize to ensure map fills container
     const handleResize = () => {

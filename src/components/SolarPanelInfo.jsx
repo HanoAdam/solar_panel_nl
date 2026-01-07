@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './SolarPanelInfo.css';
 
 const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
@@ -7,10 +7,21 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
   const [avgPanelOutput, setAvgPanelOutput] = useState(435);
   const [calculatedKwp, setCalculatedKwp] = useState(0);
   const [calculatedAnnualOutput, setCalculatedAnnualOutput] = useState(0);
+  const isInitialLoadRef = useRef(true);
+  const previousDataRef = useRef(null);
 
   // Initialize values from data when it changes and recalculate
   useEffect(() => {
     if (data) {
+      // Check if this is a new data object (different from previous)
+      const isNewData = previousDataRef.current !== data;
+      
+      // Mark as initial load when new data arrives to prevent recalculation effect from running
+      if (isNewData) {
+        isInitialLoadRef.current = true;
+        previousDataRef.current = data;
+      }
+      
       // Use data values if available, otherwise use defaults (not current state to avoid circular dependency)
       const newKwhPerKwpPerYear = data.kwhPerKwpPerYear !== undefined && data.kwhPerKwpPerYear !== null ? data.kwhPerKwpPerYear : 875;
       const newAvailabilityFactor = data.availabilityFactor !== undefined && data.availabilityFactor !== null ? data.availabilityFactor : 99;
@@ -34,6 +45,12 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
           : kwp * newKwhPerKwpPerYear * (newAvailabilityFactor / 100);
         setCalculatedAnnualOutput(annualOutput);
 
+        // Mark that initial load is complete after setting values
+        // Use setTimeout to ensure this happens after any recalculation effect runs
+        setTimeout(() => {
+          isInitialLoadRef.current = false;
+        }, 0);
+
         // Notify parent component of changes
         if (onDataChange) {
           onDataChange({
@@ -49,12 +66,20 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
         // If no panels data, set to 0
         setCalculatedKwp(0);
         setCalculatedAnnualOutput(0);
+        setTimeout(() => {
+          isInitialLoadRef.current = false;
+        }, 0);
       }
     }
   }, [data, onDataChange]);
 
   // Recalculate when user edits the fields (this runs after state updates from user input)
   useEffect(() => {
+    // Skip recalculation on initial load - only recalculate when user manually edits fields
+    if (isInitialLoadRef.current) {
+      return;
+    }
+
     // Only recalculate if data exists and we have panel data
     // This effect runs when user edits fields (state changes), not when data initially loads
     // When user edits fields, always recalculate (ignore spreadsheet values)
