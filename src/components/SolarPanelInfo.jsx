@@ -20,14 +20,18 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
       setAvailabilityFactor(newAvailabilityFactor);
       setAvgPanelOutput(newAvgPanelOutput);
 
-      // Calculate values using the data values directly (to avoid race conditions)
+      // Use spreadsheet values if available, otherwise calculate
       if (data.panels !== undefined && data.panels !== null) {
-        // Calculate kWp: (Number of panels * Avg solar panel output) / 1000
-        const kwp = (data.panels * newAvgPanelOutput) / 1000;
+        // Use kWp from spreadsheet if available, otherwise calculate
+        const kwp = (data.kwp !== undefined && data.kwp !== null && data.kwp > 0) 
+          ? data.kwp 
+          : (data.panels * newAvgPanelOutput) / 1000;
         setCalculatedKwp(kwp);
 
-        // Calculate Annual output: kWp * kWh/kWp/year_NL * (Availability factor / 100)
-        const annualOutput = kwp * newKwhPerKwpPerYear * (newAvailabilityFactor / 100);
+        // Use Annual output from spreadsheet if available, otherwise calculate
+        const annualOutput = (data.annualOutput !== undefined && data.annualOutput !== null && data.annualOutput > 0)
+          ? data.annualOutput
+          : kwp * newKwhPerKwpPerYear * (newAvailabilityFactor / 100);
         setCalculatedAnnualOutput(annualOutput);
 
         // Notify parent component of changes
@@ -54,12 +58,17 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
     // Only recalculate if data exists and we have panel data
     // This effect runs when user edits fields (state changes), not when data initially loads
     if (data && data.panels !== undefined && data.panels !== null) {
-      // Calculate kWp: (Number of panels * Avg solar panel output) / 1000
-      const kwp = (data.panels * avgPanelOutput) / 1000;
+      // Use kWp from spreadsheet if available, otherwise calculate
+      const kwp = (data.kwp !== undefined && data.kwp !== null && data.kwp > 0)
+        ? data.kwp
+        : (data.panels * avgPanelOutput) / 1000;
       setCalculatedKwp(kwp);
 
-      // Calculate Annual output: kWp * kWh/kWp/year_NL * (Availability factor / 100)
-      const annualOutput = kwp * kwhPerKwpPerYear * (availabilityFactor / 100);
+      // Use Annual output from spreadsheet if available, otherwise calculate
+      // Note: When user edits fields, we still prefer spreadsheet value unless they're actively recalculating
+      const annualOutput = (data.annualOutput !== undefined && data.annualOutput !== null && data.annualOutput > 0)
+        ? data.annualOutput
+        : kwp * kwhPerKwpPerYear * (availabilityFactor / 100);
       setCalculatedAnnualOutput(annualOutput);
 
       // Notify parent component of changes
