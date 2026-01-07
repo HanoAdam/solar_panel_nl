@@ -8,17 +8,51 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
   const [calculatedKwp, setCalculatedKwp] = useState(0);
   const [calculatedAnnualOutput, setCalculatedAnnualOutput] = useState(0);
 
-  // Initialize values from data when it changes
+  // Initialize values from data when it changes and recalculate
   useEffect(() => {
     if (data) {
-      setKwhPerKwpPerYear(data.kwhPerKwpPerYear || 875);
-      setAvailabilityFactor(data.availabilityFactor || 99);
-      setAvgPanelOutput(data.avgPanelOutput || 435);
-    }
-  }, [data]);
+      // Use data values if available, otherwise use defaults (not current state to avoid circular dependency)
+      const newKwhPerKwpPerYear = data.kwhPerKwpPerYear !== undefined && data.kwhPerKwpPerYear !== null ? data.kwhPerKwpPerYear : 875;
+      const newAvailabilityFactor = data.availabilityFactor !== undefined && data.availabilityFactor !== null ? data.availabilityFactor : 99;
+      const newAvgPanelOutput = data.avgPanelOutput !== undefined && data.avgPanelOutput !== null ? data.avgPanelOutput : 435;
+      
+      setKwhPerKwpPerYear(newKwhPerKwpPerYear);
+      setAvailabilityFactor(newAvailabilityFactor);
+      setAvgPanelOutput(newAvgPanelOutput);
 
-  // Recalculate values when editable fields change or data changes
+      // Calculate values using the data values directly (to avoid race conditions)
+      if (data.panels !== undefined && data.panels !== null) {
+        // Calculate kWp: (Number of panels * Avg solar panel output) / 1000
+        const kwp = (data.panels * newAvgPanelOutput) / 1000;
+        setCalculatedKwp(kwp);
+
+        // Calculate Annual output: kWp * kWh/kWp/year_NL * (Availability factor / 100)
+        const annualOutput = kwp * newKwhPerKwpPerYear * (newAvailabilityFactor / 100);
+        setCalculatedAnnualOutput(annualOutput);
+
+        // Notify parent component of changes
+        if (onDataChange) {
+          onDataChange({
+            ...data,
+            kwhPerKwpPerYear: newKwhPerKwpPerYear,
+            availabilityFactor: newAvailabilityFactor,
+            avgPanelOutput: newAvgPanelOutput,
+            calculatedKwp: kwp,
+            calculatedAnnualOutput: annualOutput
+          });
+        }
+      } else {
+        // If no panels data, set to 0
+        setCalculatedKwp(0);
+        setCalculatedAnnualOutput(0);
+      }
+    }
+  }, [data, onDataChange]);
+
+  // Recalculate when user edits the fields (this runs after state updates from user input)
   useEffect(() => {
+    // Only recalculate if data exists and we have panel data
+    // This effect runs when user edits fields (state changes), not when data initially loads
     if (data && data.panels !== undefined && data.panels !== null) {
       // Calculate kWp: (Number of panels * Avg solar panel output) / 1000
       const kwp = (data.panels * avgPanelOutput) / 1000;
@@ -39,10 +73,6 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
           calculatedAnnualOutput: annualOutput
         });
       }
-    } else if (data) {
-      // If no panels data, set to 0
-      setCalculatedKwp(0);
-      setCalculatedAnnualOutput(0);
     }
   }, [data, kwhPerKwpPerYear, availabilityFactor, avgPanelOutput, onDataChange]);
 
@@ -91,7 +121,7 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
       <div className="info-content">
         <div className="info-item">
           <div className="info-label">ADDRESS</div>
-          <div className="info-value read-only">{address || data.originalAddress}</div>
+          <div className="info-value read-only">{data.originalAddress || address}</div>
         </div>
         
         <div className="info-item highlight-item">

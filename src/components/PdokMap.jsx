@@ -94,13 +94,8 @@ const PdokMap = ({ address, coordinates }) => {
       // Add layer control
       L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-      // Add marker for the location
+      // Add marker for the location (no popup)
       const marker = L.marker([lat, lon]).addTo(map);
-      if (address) {
-        marker.bindPopup(`<b>${address}</b><br>Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`).openPopup();
-      } else {
-        marker.bindPopup(`Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`);
-      }
       markerRef.current = marker;
 
       mapInstanceRef.current = map;
@@ -113,13 +108,8 @@ const PdokMap = ({ address, coordinates }) => {
         mapInstanceRef.current.removeLayer(markerRef.current);
       }
       
-      // Add new marker
+      // Add new marker (no popup)
       const marker = L.marker([lat, lon]).addTo(mapInstanceRef.current);
-      if (address) {
-        marker.bindPopup(`<b>${address}</b><br>Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`).openPopup();
-      } else {
-        marker.bindPopup(`Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`);
-      }
       markerRef.current = marker;
     }
 

@@ -15,8 +15,9 @@
 }
 
 .header-content {
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
+  padding: 0 24px;
 }
 
 .header-top {
@@ -57,7 +58,7 @@
 }
 
 .main-container {
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 16px 24px;
   flex: 1;
@@ -112,8 +113,9 @@
 }
 
 .footer-content {
-  max-width: 1600px;
+  max-width: 100%;
   margin: 0 auto;
+  padding: 0 24px;
 }
 
 .disclaimer {
@@ -136,8 +138,8 @@
 
 @media (min-width: 1024px) {
   .content-container {
-    grid-template-columns: 420px 1fr;
-    gap: 24px;
+    grid-template-columns: 360px 1fr;
+    gap: 20px;
   }
   
   .app-header {
