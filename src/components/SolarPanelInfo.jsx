@@ -25,7 +25,11 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
       
       // Use data values if available, otherwise use defaults (not current state to avoid circular dependency)
       const newKwhPerKwpPerYear = data.kwhPerKwpPerYear !== undefined && data.kwhPerKwpPerYear !== null ? data.kwhPerKwpPerYear : 875;
-      const newAvailabilityFactor = data.availabilityFactor !== undefined && data.availabilityFactor !== null ? data.availabilityFactor : 99;
+      let newAvailabilityFactor = data.availabilityFactor !== undefined && data.availabilityFactor !== null ? data.availabilityFactor : 99;
+      // Normalize: if value is less than 1, treat as decimal and convert to percentage (multiply by 100)
+      if (newAvailabilityFactor > 0 && newAvailabilityFactor < 1) {
+        newAvailabilityFactor = newAvailabilityFactor * 100;
+      }
       const newAvgPanelOutput = data.avgPanelOutput !== undefined && data.avgPanelOutput !== null ? data.avgPanelOutput : 435;
       
       setKwhPerKwpPerYear(newKwhPerKwpPerYear);
@@ -136,7 +140,13 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
 
   const handleAvailabilityFactorChange = (e) => {
     const numValue = parseFloat(e.target.value);
-    const value = isNaN(numValue) ? 99 : numValue;
+    let value = isNaN(numValue) ? 99 : numValue;
+    // Normalize: if user enters a decimal value less than 1 (like 0.99), convert to percentage (99)
+    if (value > 0 && value < 1) {
+      value = value * 100;
+    }
+    // Ensure value is within valid range (0-100)
+    value = Math.max(0, Math.min(100, value));
     setAvailabilityFactor(value);
   };
 

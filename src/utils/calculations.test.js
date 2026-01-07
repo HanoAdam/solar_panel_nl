@@ -234,5 +234,21 @@ describe('Solar Panel Calculations', () => {
       expect(result.kwp).toBeCloseTo(expectedKwp, 3);
       expect(result.annualOutput).toBeCloseTo(expectedAnnualOutput, 1);
     });
+
+    it('should calculate correctly for the reported issue: 17 panels, 400 kWh/kWp/year, 99% availability', () => {
+      // This test verifies the specific case reported by the user
+      const result = calculateSolarPanelOutput({
+        panels: 17,
+        avgPanelOutput: 435,
+        kwhPerKwpPerYear: 400,
+        availabilityFactor: 99 // Should be 99, not 0.99
+      });
+      
+      // Expected: (17 × 435) / 1000 = 7.395 kWp
+      expect(result.kwp).toBeCloseTo(7.395, 3);
+      
+      // Expected: 7.395 × 400 × (99 / 100) = 2,928.42 kWh
+      expect(result.annualOutput).toBeCloseTo(2928.42, 1);
+    });
   });
 });

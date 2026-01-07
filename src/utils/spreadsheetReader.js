@@ -115,8 +115,13 @@ export const loadSpreadsheetFromUrl = async (url) => {
       const addressKey = normalizeAddress(address);
       
       // Parse availability factor (remove % sign if present)
+      // Normalize: if value is less than 1, treat as decimal and convert to percentage (multiply by 100)
       const availabilityFactorStr = row['Availability factor (%)'] || row['Availability factor'] || row['Availability Factor (%)'] || '';
-      const availabilityFactor = parseFloat(availabilityFactorStr.toString().replace('%', '')) || 99;
+      let availabilityFactor = parseFloat(availabilityFactorStr.toString().replace('%', '')) || 99;
+      // If value is less than 1, it's likely a decimal (0.99) and should be converted to percentage (99)
+      if (availabilityFactor > 0 && availabilityFactor < 1) {
+        availabilityFactor = availabilityFactor * 100;
+      }
       
       // Parse other numeric values
       const panels = parseFloat(row['Number of solar panels'] || row['Number of Solar Panels'] || row.panels || 0) || 0;
