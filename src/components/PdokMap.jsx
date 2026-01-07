@@ -27,6 +27,17 @@ const PdokMap = ({ address, coordinates }) => {
     if (!coordinates) return;
 
     const { lat, lon } = coordinates;
+    
+    // Handle window resize to ensure map fills container
+    const handleResize = () => {
+      if (mapInstanceRef.current) {
+        setTimeout(() => {
+          mapInstanceRef.current.invalidateSize();
+        }, 100);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
 
       // Initialize map if it doesn't exist
       if (!mapInstanceRef.current && mapRef.current) {
@@ -99,6 +110,11 @@ const PdokMap = ({ address, coordinates }) => {
       markerRef.current = marker;
 
       mapInstanceRef.current = map;
+      
+      // Invalidate map size to ensure it fills the container properly
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
     } else if (mapInstanceRef.current) {
       // Update map if it already exists
       mapInstanceRef.current.setView([lat, lon], address ? 18 : 15); // Zoom in more when address is provided
@@ -111,10 +127,16 @@ const PdokMap = ({ address, coordinates }) => {
       // Add new marker (no popup)
       const marker = L.marker([lat, lon]).addTo(mapInstanceRef.current);
       markerRef.current = marker;
+      
+      // Invalidate map size to ensure it fills the container properly
+      setTimeout(() => {
+        mapInstanceRef.current.invalidateSize();
+      }, 100);
     }
 
     // Cleanup function
     return () => {
+      window.removeEventListener('resize', handleResize);
       // Don't remove map on cleanup, only remove markers
       if (markerRef.current && mapInstanceRef.current) {
         mapInstanceRef.current.removeLayer(markerRef.current);
