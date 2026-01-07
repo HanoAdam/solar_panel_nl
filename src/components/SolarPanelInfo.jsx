@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { calculateKwp, calculateAnnualOutput } from '../utils/calculations';
 import './SolarPanelInfo.css';
 
 const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
@@ -36,13 +37,13 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
         // Use kWp from spreadsheet if available, otherwise calculate
         const kwp = (data.kwp !== undefined && data.kwp !== null && data.kwp > 0) 
           ? data.kwp 
-          : (data.panels * newAvgPanelOutput) / 1000;
+          : calculateKwp(data.panels, newAvgPanelOutput);
         setCalculatedKwp(kwp);
 
         // Use Annual output from spreadsheet if available, otherwise calculate
         const annualOutput = (data.annualOutput !== undefined && data.annualOutput !== null && data.annualOutput > 0)
           ? data.annualOutput
-          : kwp * newKwhPerKwpPerYear * (newAvailabilityFactor / 100);
+          : calculateAnnualOutput(kwp, newKwhPerKwpPerYear, newAvailabilityFactor);
         setCalculatedAnnualOutput(annualOutput);
 
         // Mark that initial load is complete after setting values
@@ -84,12 +85,12 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
     // This effect runs when user edits fields (state changes), not when data initially loads
     // When user edits fields, always recalculate (ignore spreadsheet values)
     if (data && data.panels !== undefined && data.panels !== null) {
-      // Always calculate kWp when user edits fields: (Number of panels * Avg solar panel output) / 1000
-      const kwp = (data.panels * avgPanelOutput) / 1000;
+      // Always calculate kWp when user edits fields
+      const kwp = calculateKwp(data.panels, avgPanelOutput);
       setCalculatedKwp(kwp);
 
-      // Always calculate Annual output when user edits fields: kWp * kWh/kWp/year_NL * (Availability factor / 100)
-      const annualOutput = kwp * kwhPerKwpPerYear * (availabilityFactor / 100);
+      // Always calculate Annual output when user edits fields
+      const annualOutput = calculateAnnualOutput(kwp, kwhPerKwpPerYear, availabilityFactor);
       setCalculatedAnnualOutput(annualOutput);
 
       // Notify parent component of changes
