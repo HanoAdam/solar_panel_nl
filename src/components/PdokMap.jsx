@@ -45,7 +45,7 @@ const PdokMap = ({ address, coordinates }) => {
         const map = L.map(mapRef.current, {
           maxZoom: 25, // Allow maximum zoom
           zoomControl: true
-        }).setView([lat, lon], address ? 23 : 15); // Maximum zoom for property-level view when address is provided
+        }).setView([lat, lon], address ? 19 : 17); // Zoom level: 19 for address search, 17 for default view
 
       // Add PDOK base layer (BGT - Basisregistratie Grootschalige Topografie)
       // PDOK provides WMS services, using BGT as base layer
@@ -117,7 +117,7 @@ const PdokMap = ({ address, coordinates }) => {
       }, 100);
     } else if (mapInstanceRef.current) {
       // Update map if it already exists
-      mapInstanceRef.current.setView([lat, lon], address ? 23 : 15); // Maximum zoom for property-level view when address is provided
+      mapInstanceRef.current.setView([lat, lon], address ? 19 : 17); // Zoom level: 19 for address search, 17 for default view
       
       // Remove old marker
       if (markerRef.current) {
