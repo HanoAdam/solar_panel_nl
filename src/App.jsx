@@ -18,24 +18,20 @@ function App() {
   const [error, setError] = useState(null);
   const [spreadsheetData, setSpreadsheetData] = useState({});
 
-  // Load spreadsheet from public folder on mount
+  // Load spreadsheet from Google Sheets on mount
   useEffect(() => {
-    const loadDefaultSpreadsheet = async () => {
+    const loadSpreadsheet = async () => {
       try {
-        // Try to load CSV from public folder first
-        const data = await loadSpreadsheetFromUrl('/solar_panels.csv');
+        // Load from Google Sheets
+        const googleSheetsUrl = 'https://docs.google.com/spreadsheets/d/10pxEZ3RvdQWfbILSCfv5elbAbmKAUKbZFWBKkOqhtIk/edit?usp=sharing';
+        const data = await loadSpreadsheetFromUrl(googleSheetsUrl);
         setSpreadsheetData(data);
       } catch (err) {
-        // If CSV fails, try XLSX
-        try {
-          const data = await loadSpreadsheetFromUrl('/solar_panels.xlsx');
-          setSpreadsheetData(data);
-        } catch (err2) {
-          console.log('No default spreadsheet found in public folder');
-        }
+        console.error('Failed to load spreadsheet:', err);
+        setError('Failed to load solar panel data. Please refresh the page.');
       }
     };
-    loadDefaultSpreadsheet();
+    loadSpreadsheet();
   }, []);
 
   const handleSearch = async (searchAddress) => {
@@ -127,10 +123,13 @@ function App() {
         setSolarPanelData(data);
         setError(null); // Clear any previous errors
         
+        // Use original address from data if available, otherwise use search address
+        const addressToGeocode = data.originalAddress || searchAddress;
+        
         // Only geocode and update coordinates if data is found
         // This prevents the map from zooming when address is not in dataset
         try {
-          const coords = await geocodeAddress(searchAddress);
+          const coords = await geocodeAddress(addressToGeocode);
           setCoordinates(coords);
         } catch (geocodeErr) {
           console.warn('Geocoding failed, but continuing with solar panel data:', geocodeErr);
@@ -177,19 +176,20 @@ function App() {
 
         <div className="content-container">
           <div className="info-panel">
-            <SolarPanelInfo data={solarPanelData} address={address} loading={loading} />
+            <SolarPanelInfo data={solarPanelData} address={address || (solarPanelData?.originalAddress)} loading={loading} />
           </div>
           <div className="map-panel">
-            <PdokMap address={address} coordinates={coordinates} />
+            <PdokMap address={address || (solarPanelData?.originalAddress)} coordinates={coordinates} />
           </div>
         </div>
       </div>
       <footer className="app-footer">
         <div className="footer-content">
           <p className="disclaimer">
-            This application provides solar panel information based on available datasets. 
             For API access and inquiries, please contact{' '}
             <a href="mailto:andrej@spenatlabs.com" className="footer-link">andrej@spenatlabs.com</a>.
+            <br /><br />
+            Estimates are approximate and based on aerial or satellite imagery and other third-party information. No legal responsibility is assumed for accuracy or timeliness. Copyright © Spenat Labs Inc. All rights reserved.
           </p>
         </div>
       </footer>

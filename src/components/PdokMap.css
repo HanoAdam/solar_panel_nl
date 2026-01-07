@@ -2,35 +2,38 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   height: 100%;
   display: flex;
   flex-direction: column;
   backdrop-filter: blur(10px);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .map-header {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .map-header h3 {
   font-size: 18px;
   font-weight: 600;
   color: #ffffff;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   letter-spacing: -0.01em;
 }
 
 .map-address {
   color: rgba(255, 255, 255, 0.5);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 400;
 }
 
 .map-wrapper {
   width: 100%;
   flex: 1;
-  min-height: 500px;
+  min-height: 0;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);

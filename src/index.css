@@ -15,7 +15,13 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Custom scrollbar */

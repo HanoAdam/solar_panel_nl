@@ -1,17 +1,21 @@
 .app {
-  min-height: 100vh;
+  height: 100vh;
   background-color: #0a0a0a;
   color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .app-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   background-color: #0a0a0a;
-  padding: 48px 24px;
+  padding: 20px 24px;
+  flex-shrink: 0;
 }
 
 .header-content {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -19,11 +23,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .spenat-logo {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #ffffff;
   text-decoration: none;
@@ -35,10 +39,10 @@
 }
 
 .app-title {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 600;
   letter-spacing: -0.02em;
-  margin-bottom: 12px;
+  margin: 0;
   background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -46,66 +50,78 @@
 }
 
 .app-subtitle {
-  font-size: 18px;
+  font-size: 14px;
   color: rgba(255, 255, 255, 0.6);
   font-weight: 400;
+  margin: 0;
 }
 
 .main-container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 16px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .search-section {
-  margin-bottom: 32px;
+  margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .error-message {
   background-color: rgba(239, 68, 68, 0.1);
   color: #fca5a5;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 8px;
   border: 1px solid rgba(239, 68, 68, 0.2);
-  margin-top: 16px;
-  font-size: 14px;
+  margin-top: 12px;
+  font-size: 13px;
 }
 
 .content-container {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
-  min-height: 600px;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .info-panel {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .map-panel {
   display: flex;
   flex-direction: column;
-  min-height: 600px;
+  min-height: 0;
+  flex: 1;
 }
 
 .app-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   background-color: #0a0a0a;
-  padding: 24px;
-  margin-top: 48px;
+  padding: 12px 24px;
+  flex-shrink: 0;
 }
 
 .footer-content {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
 .disclaimer {
-  font-size: 14px;
+  font-size: 11px;
   color: rgba(255, 255, 255, 0.6);
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .footer-link {
@@ -120,12 +136,24 @@
 
 @media (min-width: 1024px) {
   .content-container {
-    grid-template-columns: 400px 1fr;
-    gap: 32px;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
   }
   
-  .map-panel {
-    min-height: calc(100vh - 300px);
+  .app-header {
+    padding: 24px 24px;
+  }
+  
+  .app-title {
+    font-size: 42px;
+  }
+  
+  .app-subtitle {
+    font-size: 16px;
+  }
+  
+  .main-container {
+    padding: 20px 24px;
   }
 }
 

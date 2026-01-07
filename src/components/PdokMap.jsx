@@ -28,13 +28,13 @@ const PdokMap = ({ address, coordinates }) => {
 
     const { lat, lon } = coordinates;
 
-    // Initialize map if it doesn't exist
-    if (!mapInstanceRef.current && mapRef.current) {
-      // Create map centered on coordinates with maximum zoom allowed
-      const map = L.map(mapRef.current, {
-        maxZoom: 25, // Allow maximum zoom
-        zoomControl: true
-      }).setView([lat, lon], 15);
+      // Initialize map if it doesn't exist
+      if (!mapInstanceRef.current && mapRef.current) {
+        // Create map centered on coordinates with maximum zoom allowed
+        const map = L.map(mapRef.current, {
+          maxZoom: 25, // Allow maximum zoom
+          zoomControl: true
+        }).setView([lat, lon], address ? 18 : 15); // Zoom in more when address is provided
 
       // Add PDOK base layer (BGT - Basisregistratie Grootschalige Topografie)
       // PDOK provides WMS services, using BGT as base layer
@@ -106,7 +106,7 @@ const PdokMap = ({ address, coordinates }) => {
       mapInstanceRef.current = map;
     } else if (mapInstanceRef.current) {
       // Update map if it already exists
-      mapInstanceRef.current.setView([lat, lon], 15);
+      mapInstanceRef.current.setView([lat, lon], address ? 18 : 15); // Zoom in more when address is provided
       
       // Remove old marker
       if (markerRef.current) {
