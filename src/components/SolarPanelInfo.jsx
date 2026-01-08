@@ -8,8 +8,16 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
   const [avgPanelOutput, setAvgPanelOutput] = useState(435);
   const [calculatedKwp, setCalculatedKwp] = useState(0);
   const [calculatedAnnualOutput, setCalculatedAnnualOutput] = useState(0);
+  const [visibleHelpTexts, setVisibleHelpTexts] = useState({});
   const isInitialLoadRef = useRef(true);
   const previousDataRef = useRef(null);
+
+  const toggleHelpText = (fieldId) => {
+    setVisibleHelpTexts(prev => ({
+      ...prev,
+      [fieldId]: !prev[fieldId]
+    }));
+  };
 
   // Initialize values from data when it changes and recalculate
   useEffect(() => {
@@ -156,6 +164,43 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
     setAvgPanelOutput(value);
   };
 
+  const helpTexts = {
+    confidence: "System confidence in detecting the correct number of solar panels. 10 = highest.",
+    annualOutput: "Approximate annual output of the property's solar PV system.\n\nFormula:\nAnnual output (kWh) = kWp × (kWh/kWp/year in the Netherlands) × availability factor (%)",
+    kwp: "Rated peak power of a solar PV system (kWp).\n\nFormula:\nkWP = number of solar panels × average solar panel peak power (Wp) ÷ 1,000",
+    kwhPerKwpPerYear: "Typical annual solar yield in the Netherlands (kWh per kWp installed).\n\nSource: International Energy Agency (IEA), 2023",
+    availabilityFactor: "Availability factor (%)\n\nProportion of time the system is available to generate electricity over the year (including day and night). Use a lower value for systems affected by shading/obstructions or downtime due to maintenance or grid disconnection.",
+    avgPanelOutput: "Average rated peak power of a solar panel (Wp).\n\nSource: International Energy Agency (IEA), 2025"
+  };
+
+  const HelpIcon = ({ fieldId }) => (
+    <button
+      className="help-icon"
+      onClick={(e) => {
+        e.stopPropagation();
+        toggleHelpText(fieldId);
+      }}
+      aria-label="Toggle help text"
+      type="button"
+    >
+      ?
+    </button>
+  );
+
+  const HelpText = ({ fieldId, text }) => {
+    if (!visibleHelpTexts[fieldId]) return null;
+    return (
+      <div className="help-text">
+        {text.split('\n').map((line, index) => (
+          <React.Fragment key={index}>
+            {line}
+            {index < text.split('\n').length - 1 && <br />}
+          </React.Fragment>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="solar-panel-info">
       <h2 className="info-title">Solar Panel Information</h2>
@@ -171,22 +216,38 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
         </div>
 
         <div className="info-item">
-          <div className="info-label">CONFIDENCE LEVEL (1-10)</div>
+          <div className="info-label-row">
+            <span>CONFIDENCE LEVEL (1-10)</span>
+            <HelpIcon fieldId="confidence" />
+          </div>
+          <HelpText fieldId="confidence" text={helpTexts.confidence} />
           <div className="info-value read-only">{data.confidence || 0}</div>
         </div>
 
         <div className="info-item">
-          <div className="info-label">APPROX. ANNUAL OUTPUT</div>
+          <div className="info-label-row">
+            <span>APPROX. ANNUAL OUTPUT</span>
+            <HelpIcon fieldId="annualOutput" />
+          </div>
+          <HelpText fieldId="annualOutput" text={helpTexts.annualOutput} />
           <div className="info-value read-only">{isNaN(calculatedAnnualOutput) ? '0' : calculatedAnnualOutput.toFixed(0)} kWh</div>
         </div>
 
         <div className="info-item">
-          <div className="info-label">KWP</div>
+          <div className="info-label-row">
+            <span>KWP</span>
+            <HelpIcon fieldId="kwp" />
+          </div>
+          <HelpText fieldId="kwp" text={helpTexts.kwp} />
           <div className="info-value read-only">{isNaN(calculatedKwp) ? '0.000' : calculatedKwp.toFixed(3)}</div>
         </div>
 
         <div className="info-item editable-item">
-          <div className="info-label">KWH/KWP/YEAR_NL</div>
+          <div className="info-label-row">
+            <span>KWH/KWP/YEAR_NL</span>
+            <HelpIcon fieldId="kwhPerKwpPerYear" />
+          </div>
+          <HelpText fieldId="kwhPerKwpPerYear" text={helpTexts.kwhPerKwpPerYear} />
           <input
             type="number"
             className="info-input"
@@ -198,7 +259,11 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
         </div>
 
         <div className="info-item editable-item">
-          <div className="info-label">AVAILABILITY FACTOR</div>
+          <div className="info-label-row">
+            <span>AVAILABILITY FACTOR</span>
+            <HelpIcon fieldId="availabilityFactor" />
+          </div>
+          <HelpText fieldId="availabilityFactor" text={helpTexts.availabilityFactor} />
           <div className="input-with-unit">
             <input
               type="number"
@@ -214,7 +279,11 @@ const SolarPanelInfo = ({ data, address, loading, onDataChange }) => {
         </div>
 
         <div className="info-item editable-item">
-          <div className="info-label">AVG SOLAR PANEL OUTPUT</div>
+          <div className="info-label-row">
+            <span>AVG SOLAR PANEL OUTPUT</span>
+            <HelpIcon fieldId="avgPanelOutput" />
+          </div>
+          <HelpText fieldId="avgPanelOutput" text={helpTexts.avgPanelOutput} />
           <div className="input-with-unit">
             <input
               type="number"
